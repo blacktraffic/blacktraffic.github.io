@@ -14,10 +14,23 @@
 
 <h3>x509 Test Cases</h3>
 
-
 x509 certs to tickle XSS, command injection:
 <p><a href="./x509/injectcert.pem">injectcert.pem</a> (sleep 30) and matching <a href="./x509/injectkey.pem">injectkey.pem</a>
-<p><a href="./x509/xsscert.pem">xsscert.pem</a> (sleep 30) and matching <a href="./x509/xsskey.pem">xsskey.pem</a>
+<p><a href="./x509/xsscert.pem">xsscert.pem</a> (xss) and matching <a href="./x509/xsskey.pem">xsskey.pem</a>
+
+<h3>Ubuntu/NVIDIA black magic</h3>
+
+Coolbits 4 allows manual fan control. Then we need to allow nvidia-smi to talk to the correct X server, so DISPLAY and XAUTHORITY need to be set. Then we can set the various parameters per card. 
+<pre>
+#make sure /etc/X11/xorg.conf says "CoolBits 4"
+systemctl restart display-manager
+ps -elf | grep X
+#find the string /run/user/???/gdm/Xauthority file in output and set XAUTH to it as below:
+export XAUTHORITY="/run/user/128/gdm/Xauthority"
+export DISPLAY=":0"
+for i in `seq 0 5` ; do nvidia-settings -a  "[gpu:$i]/GpuPowerMizerMode=1" -a "[gpu:$i]/GPUFanControlState=1" -a "[fan:$i]/GPUTargetFanSpeed=90" ; done
+watch nvidia-smi 
+</pre>
 
 <h3>Some talks:</h3>
 <p>
